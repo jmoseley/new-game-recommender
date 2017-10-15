@@ -1,7 +1,11 @@
 declare interface AppDetailsResult {
   id: number;
   name: string;
-  priceCents: number;
+  price: {
+    currency: string;
+    inital: number;
+    final: number;
+  },
   categories: {
     id: number;
     description: string;

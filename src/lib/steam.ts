@@ -18,13 +18,14 @@ export interface Announcement {
   title: string;
   type: string;
   percentOff: number;
-  apps: AppInfo[];
+  app: AppInfo;
 }
 
 export interface AppInfo {
   id: string;
   categories: string[];
   genres: string[];
+  priceCents: number;
 }
 
 interface RssResult {
@@ -73,10 +74,14 @@ async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
     const percentOff = percentMatch ? parseInt(percentMatch[1]) : null;
 
     const apps = await Promise.all(_(appIds).tail().uniq().map(getAppInfo).value());
+    if (apps.length > 1) {
+      console.info(`Found more than 1 app for announcement ${item.link}, ${apps}`);
+    }
+    const app = _.head(apps);
 
     return {
       title: item.title,
-      apps,
+      app,
       percentOff,
       type,
     };
@@ -90,5 +95,6 @@ async function getAppInfo(id: string): Promise<AppInfo> {
     id,
     genres: _.map(result.genres, 'description'),
     categories: _.map(result.categories, 'description'),
+    priceCents: result.price.final,
   };
 }
