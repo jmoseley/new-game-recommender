@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 import * as steam from './lib/steam';
+import RawClient from './lib/clients/raw';
 
 const MAX_PRICE = 600; // $6
 
@@ -10,6 +11,13 @@ const ANNOUNCEMENT_TITLE_FILTERS = [
   /Daily Deal.*/,
   /Midweek Madness.*/,
 ];
+
+const reddit = new RawClient(
+  process.env.REDDIT_USERNAME,
+  process.env.REDDIT_PASSWORD,
+  process.env.REDDIT_CLIENT_ID,
+  process.env.REDDIT_CLIENT_TOKEN,
+);
 
 // Entry point.
 async function main(): Promise<void> {
@@ -27,13 +35,18 @@ async function main(): Promise<void> {
       const price = _.get(a, 'app.priceCents') || 0;
       return (price < MAX_PRICE || FREE_WEEKEND_REGEX.test(a.title));
     })
+    .orderBy()
     .value();
 
-  console.log(JSON.stringify(announcements, null, 2));
+  console.info(`Found ${announcements.length} announcements to post.`);
+
+  // TODO: Dedupe announcements.
+  await reddit.post('test', 'This is the content');
 }
 
 main().then(() => {
   console.log('Program end');
 }).catch(err => {
   console.error(err);
+  process.exit(1);
 });
