@@ -13,7 +13,12 @@ Designed to be run inside AWS Lambda on a schedule, and generates posts to the s
 ## Run
 
 ```
-STEAM_API_KEY=<api-key> npm start
+STEAM_API_KEY=<api-key>
+REDDIT_CLIENT_ID=<app id>
+REDDIT_CLIENT_TOKEN=<app secret>
+REDDIT_USERNAME=<username>
+REDDIT_PASSWORD=<password>
+npm start
 ```
 
 ## Tests

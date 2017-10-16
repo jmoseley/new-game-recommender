@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
-import * as SteamApi from 'steam-api';
-
+import * as moment from 'moment';
 import * as request from 'request-promise-native';
+import * as SteamApi from 'steam-api';
 
 // Get the RSS feed as JSON.
 // https://api.rss2json.com/v1/api.json
@@ -15,16 +15,18 @@ const STEAM_STORE_URL_REGEX = /.+store.steampowered.com\/app\/(\d+).*/;
 const STEAM_APP_API = new SteamApi.App();
 
 export interface Announcement {
+  publishDate: moment.Moment;
   title: string;
   type: string;
   percentOff: number;
-  apps: AppInfo[];
+  app: AppInfo;
 }
 
 export interface AppInfo {
   id: string;
   categories: string[];
   genres: string[];
+  priceCents: number;
 }
 
 interface RssResult {
@@ -73,10 +75,15 @@ async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
     const percentOff = percentMatch ? parseInt(percentMatch[1]) : null;
 
     const apps = await Promise.all(_(appIds).tail().uniq().map(getAppInfo).value());
+    if (apps.length > 1) {
+      console.info(`Found more than 1 app for announcement ${item.link}, ${apps}`);
+    }
+    const app = _.head(apps);
 
     return {
+      publishDate: moment(item.pubDate),
       title: item.title,
-      apps,
+      app,
       percentOff,
       type,
     };
@@ -90,5 +97,6 @@ async function getAppInfo(id: string): Promise<AppInfo> {
     id,
     genres: _.map(result.genres, 'description'),
     categories: _.map(result.categories, 'description'),
+    priceCents: result.price.final,
   };
 }
