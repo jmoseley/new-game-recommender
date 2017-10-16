@@ -26,7 +26,6 @@ export default class RawClient {
   ) {
     this.reddit = new rawjs(userAgent);
     this.reddit.setupOAuth2(clientId, clientToken, 'https://www.reddit.com/user/GameRecommendingBot/');
-
   }
 
   public async getRateLimitDetails(): Promise<any> {
@@ -56,7 +55,7 @@ export default class RawClient {
     return postId;
   }
 
-  private async tryAuth(): Promise<any> {
+  private async tryAuth(): Promise<void> {
     if (this.haveAuthed) {
       return;
     }
@@ -74,10 +73,6 @@ export default class RawClient {
       });
     });
     this.haveAuthed = true;
-
-    console.log(JSON.stringify(this.getRateLimitDetails()));
-
-    return response;
   }
 }
 

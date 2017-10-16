@@ -43,9 +43,12 @@ async function main(): Promise<void> {
   await reddit.post('test', 'This is the content');
 }
 
-main().then(() => {
-  console.log('Program end');
-}).catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.env.RUN_LOCAL) {
+  main().then(() => {
+    console.log('Program end');
+    process.exit(0);
+  }).catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
+}

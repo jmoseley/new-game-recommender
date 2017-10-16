@@ -9,7 +9,7 @@
   "author": "Bowden Kelly",
   "license": "MIT",
   "scripts": {
-    "start": "npm run build && node dist/main.js",
+    "start": "npm run build && RUN_LOCAL=1 node dist/main.js",
     "build": "npm run build-ts && npm run tslint",
     "test": "jest --forceExit",
     "build-ts": "tsc --sourcemap",
