@@ -12,7 +12,8 @@ const STEAM_PERCENT_REGEX = /.* (\d+)%.*/;
 const STEAM_TITLE_TYPE_REGEX = /(.+) - .*/;
 const STEAM_STORE_URL_REGEX = /.+store.steampowered.com\/app\/(\d+).*/;
 
-const STEAM_APP_API = new SteamApi.App();
+// TODO: Wtf is wrong with the types.
+let STEAM_APP_API: any;
 
 export interface Announcement {
   publishDate: moment.Moment;
@@ -54,7 +55,6 @@ interface RssResult {
 }
 
 export async function getAnnouncements(oldestResult: Date = null): Promise<Announcement[]> {
-  console.debug('Getting announcements from RSS');
   const getResult = await request.get(STEAM_ANNOUNCEMENTS_URL);
   const result = JSON.parse(getResult) as RssResult;
   if (!getResult || result.status !== 'ok') {
@@ -66,7 +66,6 @@ export async function getAnnouncements(oldestResult: Date = null): Promise<Annou
 }
 
 async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
-  console.debug(`Parsing rss results`);
   return await Promise.all(_(rssResult.items).map(async item => {
     const appIds = item.content.match(STEAM_STORE_URL_REGEX);
     const typeMatch = STEAM_TITLE_TYPE_REGEX.exec(item.title);
@@ -91,6 +90,9 @@ async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
 }
 
 async function getAppInfo(id: string): Promise<AppInfo> {
+  if (!STEAM_APP_API) {
+    STEAM_APP_API = new SteamApi.App();
+  }
   const result = await STEAM_APP_API.appDetails(id);
 
   return {

@@ -9,11 +9,12 @@
   "author": "Bowden Kelly",
   "license": "MIT",
   "scripts": {
-    "start": "npm run build && RUN_LOCAL=1 node dist/main.js",
-    "build": "npm run build-ts && npm run tslint",
+    "start": "npm run build && sam local invoke GameRecommenderBot --event event.json",
+    "build": "npm run tslint && webpack",
     "test": "jest --forceExit",
     "build-ts": "tsc --sourcemap",
-    "tslint": "tslint -c tslint.json -p tsconfig.json"
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "local": "npm run build-ts && RUN_LOCAL=1 node dist/main.js"
   },
   "jest": {
     "globals": {
@@ -52,7 +53,9 @@
     "jest": "^19.0.2",
     "source-map-support": "^0.5.0",
     "ts-jest": "^19.0.8",
+    "ts-loader": "^3.0.2",
     "tslint": "^5.0.0",
-    "typescript": "^2.4.0"
+    "typescript": "^2.4.0",
+    "webpack": "^3.7.1"
   }
 }

@@ -39,9 +39,16 @@ async function main(): Promise<void> {
 
   console.info(`Found ${announcements.length} announcements to post.`);
 
+  console.info(JSON.stringify(announcements, null, 2));
   // TODO: Dedupe announcements.
-  await reddit.post('test', 'This is the content');
+  // await reddit.post('test', 'This is the content');
 }
+
+const lambdaHandler = (event: any, context: any, _callback: any) => {
+  main().then(() => {
+    console.info('Program end');
+  });
+};
 
 if (process.env.RUN_LOCAL) {
   main().then(() => {
@@ -52,3 +59,5 @@ if (process.env.RUN_LOCAL) {
     process.exit(1);
   });
 }
+
+export default lambdaHandler;

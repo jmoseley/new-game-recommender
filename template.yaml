@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion : '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Reddit Bot for posting Steam announcements
+Resources:
+  GameRecommenderBot:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: nodejs6.10
+      Handler: bundle.default
+      CodeUri: .
+      Environment:
+        Variables:
+          REDDIT_CLIENT_ID: <client id>
+          REDDIT_CLIENT_TOKEN: <client secret>
+          REDDIT_USERNAME: <username>
+          REDDIT_PASSWORD: <password>
+          STEAM_API_KEY: <api key>
