@@ -11,7 +11,7 @@
   "scripts": {
     "start": "npm run build && sam local invoke GameRecommenderBot --event event.json",
     "build": "npm run tslint && webpack",
-    "test": "jest --forceExit",
+    "test": "jest",
     "build-ts": "tsc --sourcemap",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "local": "npm run build-ts && RUN_LOCAL=1 node dist/main.js"
