@@ -47,6 +47,8 @@ async function main(): Promise<void> {
 const lambdaHandler = (event: any, context: any, _callback: any) => {
   main().then(() => {
     console.info('Program end');
+  }).catch(err => {
+    console.error(err);
   });
 };
 
