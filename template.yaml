@@ -9,6 +9,7 @@ Resources:
       Runtime: nodejs6.10
       Handler: bundle.default
       CodeUri: .
+      Timeout: 60
       Environment:
         Variables:
           REDDIT_CLIENT_ID: <client id>
@@ -16,3 +17,5 @@ Resources:
           REDDIT_USERNAME: <username>
           REDDIT_PASSWORD: <password>
           STEAM_API_KEY: <api key>
+          AWS_KEY_ID: <api key id>
+          AWS_SECRET_KEY: '<secret key>'

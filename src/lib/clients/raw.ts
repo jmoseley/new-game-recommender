@@ -35,8 +35,7 @@ export default class RawClient {
   public async post(title: string, content: string, retry: boolean = true): Promise<string> {
     await this.tryAuth();
 
-    let postId: string;
-    postId = await new Promise((resolve, reject) => {
+    return await new Promise<string>((resolve, reject) => {
       this.reddit.submit({
         title,
         text: content,
@@ -50,9 +49,7 @@ export default class RawClient {
           resolve(id);
         }
       });
-    }) as any;
-
-    return postId;
+    });
   }
 
   private async tryAuth(): Promise<void> {
@@ -60,7 +57,7 @@ export default class RawClient {
       return;
     }
 
-    const response = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       this.reddit.auth({
         username: this.username,
         password: this.password,

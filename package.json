@@ -33,6 +33,8 @@
     "testEnvironment": "node"
   },
   "dependencies": {
+    "aws-sdk": "^2.135.0",
+    "decimal.js": "^7.3.0",
     "lodash": "^4.17.4",
     "moment": "^2.19.1",
     "node-promisify": "^1.2.0",
@@ -45,6 +47,7 @@
     "yarn": "^1.2.1"
   },
   "devDependencies": {
+    "@types/decimal.js": "^0.0.31",
     "@types/jest": "^19.2.2",
     "@types/lodash": "^4.14.77",
     "@types/moment": "^2.13.0",

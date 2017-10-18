@@ -17,7 +17,9 @@ let STEAM_APP_API: any;
 
 export interface Announcement {
   publishDate: moment.Moment;
+  link: string;
   title: string;
+  content: string;
   type: string;
   percentOff: number;
   app: AppInfo;
@@ -28,6 +30,7 @@ export interface AppInfo {
   categories: string[];
   genres: string[];
   priceCents: number;
+  name: string;
 }
 
 interface RssResult {
@@ -80,8 +83,10 @@ async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
     const app = _.head(apps);
 
     return {
+      link: item.link,
       publishDate: moment(item.pubDate),
       title: item.title,
+      content: item.content,
       app,
       percentOff,
       type,
@@ -97,6 +102,7 @@ async function getAppInfo(id: string): Promise<AppInfo> {
 
   return {
     id,
+    name: result.name,
     genres: _.map(result.genres, 'description'),
     categories: _.map(result.categories, 'description'),
     priceCents: result.price.final,

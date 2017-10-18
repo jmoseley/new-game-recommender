@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 
 import * as steam from './lib/steam';
-import RawClient from './lib/clients/raw';
+import * as postActions from './lib/post_actions';
 
 const MAX_PRICE = 600; // $6
 
@@ -11,13 +11,6 @@ const ANNOUNCEMENT_TITLE_FILTERS = [
   /Daily Deal.*/,
   /Midweek Madness.*/,
 ];
-
-const reddit = new RawClient(
-  process.env.REDDIT_USERNAME,
-  process.env.REDDIT_PASSWORD,
-  process.env.REDDIT_CLIENT_ID,
-  process.env.REDDIT_CLIENT_TOKEN,
-);
 
 // Entry point.
 async function main(): Promise<void> {
@@ -38,17 +31,27 @@ async function main(): Promise<void> {
     .value();
 
   console.info(`Found ${announcements.length} announcements to post.`);
-
-  console.info(JSON.stringify(announcements, null, 2));
-  // TODO: Dedupe announcements.
-  // await reddit.post('test', 'This is the content');
+  // Do all the posts in order, one at a time.
+  let promise = Promise.resolve();
+  announcements.forEach(a => {
+    promise = promise.then(async () => {
+      await postActions.postAnnouncement(a);
+    });
+  });
+  await promise;
 }
 
-const lambdaHandler = (event: any, context: any, _callback: any) => {
-  main().then(() => {
+const lambdaHandler = async (_event: any, _context: any, callback: any) => {
+  await main().then(() => {
     console.info('Program end');
+
+    // Shouldn't need to do this, but the reddit client hangs sometimes.
+    process.exit(0);
   }).catch(err => {
     console.error(err);
+
+    // Shouldn't need to do this, but the reddit client hangs sometimes.
+    process.exit(1);
   });
 };
 
