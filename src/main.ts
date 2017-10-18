@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import * as steam from './lib/steam';
 import * as postActions from './lib/post_actions';
 
-const MAX_PRICE = 600; // $6
+const MAX_PRICE = 1000; // $10
 
 const FREE_WEEKEND_REGEX = /Free Weekend.*/;
 const ANNOUNCEMENT_TITLE_FILTERS = [
@@ -22,7 +22,13 @@ async function main(): Promise<void> {
     // Only announcements with certain titles.
     .filter(a => _.some(ANNOUNCEMENT_TITLE_FILTERS, pattern => pattern.exec(a.title)))
     // Only multi-player.
-    .filter(a => _.some(_.get(a, 'app.categories'), c => c === 'Multi-player'))
+    .filter(a => _.some(
+      _.get(a, 'app.categories'), c =>
+        c === 'Online Multi-Player' ||
+        c === 'Multi-Player' ||
+        c === 'Online Co-op'
+      )
+    )
     // Only below a certain price, or free weekend.
     .filter(a => {
       const price = _.get(a, 'app.priceCents') || 0;
