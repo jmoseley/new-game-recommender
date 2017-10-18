@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import * as AWS from 'aws-sdk';
 import Decimal from 'decimal.js';
 
@@ -52,18 +53,36 @@ export async function postAnnouncement(announcement: Announcement): Promise<void
 
 function makePost(a: Announcement): { title: string, content: string } {
   let title;
-  let content;
+  const content = `
+Current Active Players: ${a.app.activePlayers}
+
+${a.appLink || ''}
+
+Genres: ${_.join(a.app.genres, ', ')}
+
+Categories: ${_.join(a.app.categories, ', ')}
+
+${getFooter()}
+`;
+
   switch (a.type) {
     case 'Free Weekend':
       title = `${a.app.name} Free Weekend!`;
-      content = a.content;
       break;
     default:
       const priceStr = new Decimal(a.app.priceCents).dividedBy(100).toFixed(2);
-      title = `${a.app.name} on Sale for $${priceStr}`;
-      content = a.content;
+      title = `${a.app.name} on Sale for $${priceStr}!`;
       break;
   }
 
   return { title, content };
+}
+
+function getFooter(): string {
+  return `
+*****
+Beep, Boop, I'm a bot.
+
+[Github](https://github.com/jmoseley/new-game-recommender)
+`;
 }
