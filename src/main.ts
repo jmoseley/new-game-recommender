@@ -42,16 +42,11 @@ async function main(): Promise<void> {
 }
 
 const lambdaHandler = async (_event: any, _context: any, callback: any) => {
+  console.info(`Program start`);
   await main().then(() => {
     console.info('Program end');
-
-    // Shouldn't need to do this, but the reddit client hangs sometimes.
-    process.exit(0);
   }).catch(err => {
     console.error(err);
-
-    // Shouldn't need to do this, but the reddit client hangs sometimes.
-    process.exit(1);
   });
 };
 

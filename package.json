@@ -14,7 +14,8 @@
     "test": "jest",
     "build-ts": "tsc --sourcemap",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "local": "npm run build-ts && RUN_LOCAL=1 node dist/main.js"
+    "local": "npm run build-ts && RUN_LOCAL=1 node dist/main.js",
+    "deploy-s3": "./scripts/deploy-s3.sh"
   },
   "jest": {
     "globals": {
