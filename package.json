@@ -1,12 +1,12 @@
 {
-  "name": "express-typescript-starter",
+  "name": "game-recommending-bot",
   "version": "0.1.0",
-  "description": "A starting point for Node.js express apps with TypeScript",
+  "description": "A bot that post about Steam announcements",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sahat/hackathon-starter.git"
+    "url": "https://github.com/jmoseley/new-game-recommender.git"
   },
-  "author": "Bowden Kelly",
+  "author": "Jeremy Moseley",
   "license": "MIT",
   "scripts": {
     "start": "npm run build && sam local invoke GameRecommenderBot --event event.json",
