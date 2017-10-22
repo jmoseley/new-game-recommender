@@ -93,7 +93,7 @@ async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
       title: item.title,
       content: item.content,
       app,
-      appLink: appLinks[1],
+      appLink: appLinks ? appLinks[1] : null,
       percentOff,
       type,
     };
