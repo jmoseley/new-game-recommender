@@ -34,6 +34,7 @@
     "testEnvironment": "node"
   },
   "dependencies": {
+    "async": "^2.5.0",
     "aws-sdk": "^2.135.0",
     "decimal.js": "^7.3.0",
     "lodash": "^4.17.4",
@@ -49,6 +50,7 @@
     "yarn": "^1.2.1"
   },
   "devDependencies": {
+    "@types/async": "^2.0.44",
     "@types/decimal.js": "^0.0.31",
     "@types/jest": "^19.2.2",
     "@types/lodash": "^4.14.77",

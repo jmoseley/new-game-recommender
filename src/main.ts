@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 
+import * as secretsDecrypter from './lib/secrets';
 import * as steam from './lib/steam';
 import * as postActions from './lib/post_actions';
 
@@ -19,8 +20,15 @@ const CATEGORIES = [
 ];
 
 // Entry point.
-async function main(): Promise<void> {
+export async function steamAnnouncements(
+  _event: any,
+  _context: any,
+  callback: (err: any, result: any) => void,
+): Promise<void> {
+  const secrets = await secretsDecrypter.resolve();
+  console.log(secrets);
   console.info('Getting announcements');
+
   const allAnnouncements = await steam.getAnnouncements();
 
   // Filter announcements.
@@ -48,25 +56,6 @@ async function main(): Promise<void> {
     });
   });
   await promise;
+
+  callback(null, 'Ok');
 }
-
-const lambdaHandler = async (_event: any, _context: any, callback: any) => {
-  console.info(`Program start`);
-  await main().then(() => {
-    console.info('Program end');
-  }).catch(err => {
-    console.error(err);
-  });
-};
-
-if (process.env.RUN_LOCAL) {
-  main().then(() => {
-    console.log('Program end');
-    process.exit(0);
-  }).catch(err => {
-    console.error(err);
-    process.exit(1);
-  });
-}
-
-export default lambdaHandler;
