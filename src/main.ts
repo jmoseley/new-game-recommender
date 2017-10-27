@@ -12,6 +12,12 @@ const ANNOUNCEMENT_TITLE_FILTERS = [
   /Midweek Madness.*/,
 ];
 
+const CATEGORIES = [
+  'ONLINE MULTI-PLAYER',
+  'MULTI-PLAYER',
+  'ONLINE CO-OP',
+];
+
 // Entry point.
 async function main(): Promise<void> {
   console.info('Getting announcements');
@@ -23,12 +29,9 @@ async function main(): Promise<void> {
     .filter(a => _.some(ANNOUNCEMENT_TITLE_FILTERS, pattern => pattern.exec(a.title)))
     // Only multi-player.
     .filter(a => _.some(
-      _.get(a, 'app.categories'), c =>
-        c === 'Online Multi-Player' ||
-        c === 'Multi-Player' ||
-        c === 'Online Co-op'
-      )
-    )
+      _.get(a, 'app.categories', []),
+      c => _.includes(CATEGORIES, c.toUpperCase()),
+    ))
     // Only below a certain price, or free weekend.
     .filter(a => {
       const price = _.get(a, 'app.priceCents') || 0;
