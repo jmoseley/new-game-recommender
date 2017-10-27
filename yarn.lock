@@ -3841,6 +3841,12 @@ xml2js@0.4.17:
     sax ">=0.6.0"
     xmlbuilder "^4.1.0"
 
+xml2js@~0.2.6:
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/xml2js/-/xml2js-0.2.8.tgz#9b81690931631ff09d1957549faf54f4f980b3c2"
+  dependencies:
+    sax "0.5.x"
+
 xmlbuilder@4.2.1, xmlbuilder@^4.1.0:
   version "4.2.1"
   resolved "https://registry.yarnpkg.com/xmlbuilder/-/xmlbuilder-4.2.1.tgz#aa58a3041a066f90eaa16c2f5389ff19f3f461a5"
@@ -3850,6 +3856,17 @@ xmlbuilder@4.2.1, xmlbuilder@^4.1.0:
 xmlbuilder@>=0.4.2:
   version "9.0.4"
   resolved "https://registry.yarnpkg.com/xmlbuilder/-/xmlbuilder-9.0.4.tgz#519cb4ca686d005a8420d3496f3f0caeecca580f"
+
+xmlbuilder@~0.4.2:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/xmlbuilder/-/xmlbuilder-0.4.3.tgz#c4614ba74e0ad196e609c9272cd9e1ddb28a8a58"
+
+xmljson@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/xmljson/-/xmljson-0.2.0.tgz#e2d121d13c682c6964f6ae9c1a0be8a3cce8866c"
+  dependencies:
+    xml2js "~0.2.6"
+    xmlbuilder "~0.4.2"
 
 xtend@^4.0.0, xtend@^4.0.1, xtend@~4.0.0, xtend@~4.0.1:
   version "4.0.1"

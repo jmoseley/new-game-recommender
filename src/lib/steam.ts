@@ -2,11 +2,11 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as request from 'request-promise-native';
 import * as SteamApi from 'steam-api';
+import * as xmljson from 'xmljson';
 
 // Get the RSS feed as JSON.
-// https://api.rss2json.com/v1/api.json
 // http://store.steampowered.com/feeds/news.xml
-const STEAM_ANNOUNCEMENTS_URL = 'https://api.rss2json.com/v1/api.json?rss_url=http%3A%2F%2Fstore.steampowered.com%2Ffeeds%2Fnews.xml';
+const STEAM_ANNOUNCEMENTS_URL = 'http://store.steampowered.com/feeds/news.xml';
 
 const STEAM_PERCENT_REGEX = /.* (\d+)%.*/;
 const STEAM_TITLE_TYPE_REGEX = /(.+) - .*/;
@@ -38,16 +38,7 @@ export interface AppInfo {
 }
 
 interface RssResult {
-  status: string;
-  feed: {
-    url: string;
-    title: string;
-    link: string;
-    author: string;
-    description: string;
-    image: string;
-  };
-  items: {
+  item: {
     title: string;
     pubDate: string;
     link: string;
@@ -55,27 +46,33 @@ interface RssResult {
     author: string;
     thumbnail: string;
     description: string;
-    content: string;
+    'content:encoded': string;
     enclosure: string[];
     categories: string[];
   }[];
 }
 
 export async function getAnnouncements(oldestResult: Date = null): Promise<Announcement[]> {
-  const getResult = await request.get(STEAM_ANNOUNCEMENTS_URL);
-  const result = JSON.parse(getResult) as RssResult;
-  if (!getResult || result.status !== 'ok') {
-    console.error(`Error getting RSS feed: ${JSON.stringify(result, null, 2)}`);
-    return [];
-  }
+  const xmlResult = await request.get(STEAM_ANNOUNCEMENTS_URL);
+  const result = await new Promise((resolve, reject) => {
+    xmljson.to_json(xmlResult, (err, result) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(result);
+      }
+    });
+  }) as any;
 
-  return await parseResults(result);
+  const items = result['rdf:RDF'] as RssResult;
+
+  return await parseResults(items);
 }
 
 async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
-  return await Promise.all(_(rssResult.items).map(async item => {
-    const appIds = item.content.match(STEAM_STORE_URL_APP_ID_REGEX);
-    const appLinks = item.content.match(STEAM_STORE_URL_REGEX);
+  return await Promise.all(_(rssResult.item).map(async item => {
+    const appIds = item['content:encoded'].match(STEAM_STORE_URL_APP_ID_REGEX);
+    const appLinks = item['content:encoded'].match(STEAM_STORE_URL_REGEX);
     const typeMatch = STEAM_TITLE_TYPE_REGEX.exec(item.title);
     const type = typeMatch ? typeMatch[1] : null;
     const percentMatch = STEAM_PERCENT_REGEX.exec(item.title);
@@ -91,7 +88,7 @@ async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
       link: item.link,
       publishDate: moment(item.pubDate),
       title: item.title,
-      content: item.content,
+      content: item['content:encoded'],
       app,
       appLink: appLinks ? appLinks[1] : null,
       percentOff,
