@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
-import * as steam from './lib/steam';
+import SteamClient from './lib/steam';
 import * as postActions from './lib/post_actions';
 
 const MAX_PRICE = 1000; // $10
@@ -30,6 +30,7 @@ async function generateSteamAnnouncements(): Promise<void> {
   }
   console.info('Getting announcements');
 
+  const steam = new SteamClient(secrets.STEAM_API_KEY);
   const allAnnouncements = await steam.getAnnouncements();
 
   // Filter announcements.
@@ -64,15 +65,10 @@ export function steamAnnouncements(
   context: any,
   _callback: (err?: any, result?: any) => void,
 ): Promise<void> {
-  console.info('Running function.');
-  console.info(context.getRemainingTimeInMillis());
-  const promiseResult = generateSteamAnnouncements().then(result => {
-    console.info('Finishing function.');
-    context.succeed(result);
-  }).catch(err => {
-    console.info('Error running function.');
-    context.fail(err);
-  });
-  console.info('Done building promise.');
-  return promiseResult;
+  console.info('Starting steamAnnouncements');
+  return generateSteamAnnouncements()
+    .catch((err: any) => {
+      console.error('Error running function', err);
+      context.fail(err);
+    });
 }

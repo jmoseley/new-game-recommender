@@ -52,61 +52,78 @@ interface RssResult {
   }[];
 }
 
-export async function getAnnouncements(oldestResult: Date = null): Promise<Announcement[]> {
-  const xmlResult = await request.get(STEAM_ANNOUNCEMENTS_URL);
-  const result = await new Promise((resolve, reject) => {
-    xmljson.to_json(xmlResult, (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
+export default class SteamClient {
+  appApi: SteamApi.App;
+  userStatsApi: SteamApi.UserStats;
+
+  constructor(steamApiKey: string) {
+    this.appApi = new SteamApi.App(steamApiKey);
+    this.userStatsApi = new SteamApi.UserStats(steamApiKey);
+  }
+
+  async getAnnouncements(oldestResult: Date = null): Promise<Announcement[]> {
+    const xmlResult = await request.get(STEAM_ANNOUNCEMENTS_URL);
+    const result = await new Promise((resolve, reject) => {
+      xmljson.to_json(xmlResult, (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    }) as any;
+
+    const items = result['rdf:RDF'] as RssResult;
+
+    return await this.parseResults(items);
+  }
+
+  private async parseResults(rssResult: RssResult): Promise<Announcement[]> {
+    console.log('starting parseResults');
+    return await Promise.all(_(rssResult.item).map(async item => {
+      const appIdsResult = item['content:encoded'].match(STEAM_STORE_URL_APP_ID_REGEX);
+      const appLinks = item['content:encoded'].match(STEAM_STORE_URL_REGEX);
+      const typeMatch = STEAM_TITLE_TYPE_REGEX.exec(item.title);
+      const type = typeMatch ? typeMatch[1] : null;
+      const percentMatch = STEAM_PERCENT_REGEX.exec(item.title);
+      const percentOff = percentMatch ? parseInt(percentMatch[1]) : null;
+
+      const appIds = _(appIdsResult).tail().uniq().value();
+      if (appIds.length > 1) {
+        console.info(`Found more than 1 app for announcement ${item.link}, ${appIds}`);
       }
-    });
-  }) as any;
+      const appId = _.head(appIds);
 
-  const items = result['rdf:RDF'] as RssResult;
+      const app = await this.getAppInfo(appId);
 
-  return await parseResults(items);
-}
+      return {
+        link: item.link,
+        publishDate: moment(item.pubDate),
+        title: item.title,
+        content: item['content:encoded'],
+        app,
+        appLink: appLinks ? appLinks[1] : null,
+        percentOff,
+        type,
+      };
+    }).compact().value());
+  }
 
-async function parseResults(rssResult: RssResult): Promise<Announcement[]> {
-  return await Promise.all(_(rssResult.item).map(async item => {
-    const appIds = item['content:encoded'].match(STEAM_STORE_URL_APP_ID_REGEX);
-    const appLinks = item['content:encoded'].match(STEAM_STORE_URL_REGEX);
-    const typeMatch = STEAM_TITLE_TYPE_REGEX.exec(item.title);
-    const type = typeMatch ? typeMatch[1] : null;
-    const percentMatch = STEAM_PERCENT_REGEX.exec(item.title);
-    const percentOff = percentMatch ? parseInt(percentMatch[1]) : null;
-
-    const apps = await Promise.all(_(appIds).tail().uniq().map(getAppInfo).value());
-    if (apps.length > 1) {
-      console.info(`Found more than 1 app for announcement ${item.link}, ${apps}`);
+  private async getAppInfo(id: string): Promise<AppInfo> {
+    if (!id) {
+      return null;
     }
-    const app = _.head(apps);
+
+    const result = await this.appApi.appDetails(id);
+    const activePlayers = await this.userStatsApi.GetNumberOfCurrentPlayers(id);
 
     return {
-      link: item.link,
-      publishDate: moment(item.pubDate),
-      title: item.title,
-      content: item['content:encoded'],
-      app,
-      appLink: appLinks ? appLinks[1] : null,
-      percentOff,
-      type,
+      id,
+      name: result.name,
+      genres: _.map(result.genres, 'description'),
+      categories: _.map(result.categories, 'description'),
+      priceCents: result.price.final,
+      activePlayers,
     };
-  }).compact().value());
-}
-
-async function getAppInfo(id: string): Promise<AppInfo> {
-  const result = await STEAM_APP_API.appDetails(id);
-  const activePlayers = await STEAM_USER_STATS_API.GetNumberOfCurrentPlayers(id);
-
-  return {
-    id,
-    name: result.name,
-    genres: _.map(result.genres, 'description'),
-    categories: _.map(result.categories, 'description'),
-    priceCents: result.price.final,
-    activePlayers,
-  };
+  }
 }
