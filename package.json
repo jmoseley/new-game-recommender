@@ -30,7 +30,6 @@
     "testEnvironment": "node"
   },
   "dependencies": {
-    "async": "^2.5.0",
     "aws-sdk": "^2.135.0",
     "decimal.js": "^7.3.0",
     "lodash": "^4.17.4",
