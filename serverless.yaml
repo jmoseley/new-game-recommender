@@ -45,3 +45,11 @@ functions:
     description: Check and post relevant steam announcements to Reddit
     events:
       - schedule: rate(15 minutes)
+  gameDetails:
+    handler: src/main.gameDetails
+    name: ${self:provider.stage}-GameDetails
+    description: Get details about a game on Steam.
+    events:
+      - http:
+        path: game_details
+        method: post
