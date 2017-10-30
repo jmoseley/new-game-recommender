@@ -9,7 +9,6 @@
   "author": "Jeremy Moseley",
   "license": "MIT",
   "scripts": {
-    "start": "sls invoke local -f steamAnnouncements",
     "build": "npm run tslint && webpack",
     "test": "jest"
   },

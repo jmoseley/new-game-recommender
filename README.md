@@ -23,10 +23,22 @@ serverless encrypt -n SECRETS:REDDIT_PASSWORD -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:STEAM_API_KEY -v <value> -k <aws KMS key id>
 ```
 
-## Run
+## Run Locally
 
 ```
-npm start
+sls invoke local -f steamAnnouncements
+```
+
+## Deploy
+
+```
+sls deploy
+```
+
+## Deploy single function
+
+```
+sls deploy function -f <function name>
 ```
 
 ## Tests
