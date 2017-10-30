@@ -14,8 +14,8 @@ const STEAM_STORE_URL_APP_ID_REGEX = /.+store.steampowered.com\/app\/(\d+).*/;
 const STEAM_STORE_URL_REGEX = /"(http:\/\/store.steampowered.com\/app\/\d+\/?)"/;
 
 // TODO: Wtf is wrong with the types.
-const STEAM_APP_API = new SteamApi.App();
-const STEAM_USER_STATS_API = new SteamApi.UserStats();
+const STEAM_APP_API: any = null; // = new SteamApi.App();
+const STEAM_USER_STATS_API: any = null; // = new SteamApi.UserStats();
 
 export interface Announcement {
   publishDate: moment.Moment;

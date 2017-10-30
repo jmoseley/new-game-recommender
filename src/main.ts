@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
 import * as steam from './lib/steam';
@@ -20,13 +21,13 @@ const CATEGORIES = [
 ];
 
 // Entry point.
-export async function steamAnnouncements(
-  _event: any,
-  _context: any,
-  callback: (err: any, result: any) => void,
-): Promise<void> {
+async function generateSteamAnnouncements(): Promise<void> {
+  console.log('Generating Steam Announcements');
   const secrets = await secretsDecrypter.resolve();
-  console.log(secrets);
+  if (!secrets) {
+    console.log('Unable to decrypt secrets.');
+    return;
+  }
   console.info('Getting announcements');
 
   const allAnnouncements = await steam.getAnnouncements();
@@ -56,6 +57,22 @@ export async function steamAnnouncements(
     });
   });
   await promise;
+}
 
-  callback(null, 'Ok');
+export function steamAnnouncements(
+  _event: any,
+  context: any,
+  _callback: (err?: any, result?: any) => void,
+): Promise<void> {
+  console.info('Running function.');
+  console.info(context.getRemainingTimeInMillis());
+  const promiseResult = generateSteamAnnouncements().then(result => {
+    console.info('Finishing function.');
+    context.succeed(result);
+  }).catch(err => {
+    console.info('Error running function.');
+    context.fail(err);
+  });
+  console.info('Done building promise.');
+  return promiseResult;
 }

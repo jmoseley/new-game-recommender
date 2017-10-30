@@ -7,11 +7,7 @@ import RawClient from './clients/raw';
 
 const STEAM_ANNOUNCEMENTS_TABLE = 'GRB.PostedSteamAnnouncements';
 
-const dynamodb = new AWS.DynamoDB({
-  accessKeyId: process.env.AWS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
-  region: 'us-west-2',
-});
+const dynamodb = new AWS.DynamoDB();
 
 const reddit = new RawClient(
   process.env.REDDIT_USERNAME,

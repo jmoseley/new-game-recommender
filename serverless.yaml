@@ -1,26 +1,46 @@
 # serverless.yml
-service: Game-Recommender-Bot
+service:
+  name: GameRecommenderBot
+
 
 # Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
+  - serverless-kms-secrets
+  - serverless-dynamodb-local
+  - serverless-offline-scheduler
+  - serverless-offline
+
+custom:
+  kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
 
 provider:
   name: aws
   runtime: nodejs6.10
   memorySize: 320 # optional, in MB, default is 1024
   timeout: 15 # optional, in seconds, default is 6
+  region: us-west-2
   environment:
-    redditClientId: 'AQICAHg3Z9DahCfnDgYI7RqAozDClgHfNqfh9K3W5AcOTm36xAHyFWQujyMAWNhvZ32KqQuUAAAAbDBqBgkqhkiG9w0BBwagXTBbAgEAMFYGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMq6e2JycdbUE2alHDAgEQgCnK9W+hXTEfkk4hW2iI8WedHYheivv7rtMf2Lqr1pGxFXjVYOtdW3Fd+A=='
-    redditClientToken: 'AQICAHg3Z9DahCfnDgYI7RqAozDClgHfNqfh9K3W5AcOTm36xAFYtfJohXYQCBuy2R4SS611AAAAeTB3BgkqhkiG9w0BBwagajBoAgEAMGMGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMNKaXFpoahIDPuF+wAgEQgDZV+8MlwvSZQc14+dcShUo4L3BCDNZ9W8jXyCfa9KofeBP/lYl2EONa6Wg444PWX9F09TOIZRM='
-    redditPassword: 'AQICAHg3Z9DahCfnDgYI7RqAozDClgHfNqfh9K3W5AcOTm36xAGn/1nEJuwrBcIqLoQlNQV6AAAAaDBmBgkqhkiG9w0BBwagWTBXAgEAMFIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM6cW8a0Kmvb6x61hSAgEQgCWUA2RRzlbR2XiYumeE6NQursN4PCxa9tKoMAD8pXhDWBOAcJtD'
-    redditUsername: 'AQICAHg3Z9DahCfnDgYI7RqAozDClgHfNqfh9K3W5AcOTm36xAGaPf4Z1dHaiIADDgxJrpnzAAAAcTBvBgkqhkiG9w0BBwagYjBgAgEAMFsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMSoPRBHGiP3Q3ceI1AgEQgC61UZQA25f4S/GwrRxBBZmUaz66GgDCs+VFKPvsCr0mVC6uWy8O+ACOcLwHvpVd'
-    steamApiKey: 'AQICAHg3Z9DahCfnDgYI7RqAozDClgHfNqfh9K3W5AcOTm36xAF8YdUirOJvlgMg36dQ31XYAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMakMPdcoN7XFkywUDAgEQgDuuXKLaBoY8SHkD4Pkm2vk2H1x0hpn0YIyzuWKVvvcZYEZK8SpbakHJcx4F4Op2HnUWAKRRziWiUiEKRQ=='
-    
+    SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-west-2:*:*"
+    - Effect: Allow
+      Action:
+        - KMS:Decrypt
+      Resource: ${self:custom.kmsSecrets.keyArn} 
 
 functions:
   steamAnnouncements:
-    handler: bundle.handler # required, handler set in AWS Lambda
+    handler: src/main.steamAnnouncements
     name: ${self:provider.stage}-SteamAnnouncements
     description: Check and post relevant steam announcements to Reddit
     events:

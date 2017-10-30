@@ -4,24 +4,11 @@ import * as AWS from 'aws-sdk';
 
 const kms = new AWS.KMS();
 
-const SECRET_ENVS = _.keyBy([
-  'redditClientId',
-  'redditClientToken',
-  'redditUsername',
-  'redditPassword',
-  'steamApiKey',
-]);
-
 export async function resolve() {
-  return await new Promise((resolve, reject) => {
-    asyncLib.mapValues(SECRET_ENVS, value => kms.decrypt({
-      CiphertextBlob: value,
-    }, undefined), (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
+  console.log('Resolving secrets.');
+  const secrets = await kms.decrypt({
+    CiphertextBlob: Buffer.from(process.env.SECRETS, 'base64'),
+  }).promise();
+
+  return JSON.parse(secrets.Plaintext.toString());
 }
