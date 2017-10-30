@@ -78,8 +78,7 @@ export default class SteamClient {
     return await this.parseResults(items);
   }
 
-  private async parseResults(rssResult: RssResult): Promise<Announcement[]> {
-    console.log('starting parseResults');
+  private async parseResults(rssResult: RssResult): Promise<Announcement[]> {g
     return await Promise.all(_(rssResult.item).map(async item => {
       const appIdsResult = item['content:encoded'].match(STEAM_STORE_URL_APP_ID_REGEX);
       const appLinks = item['content:encoded'].match(STEAM_STORE_URL_REGEX);

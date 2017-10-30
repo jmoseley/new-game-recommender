@@ -21,7 +21,11 @@ const CATEGORIES = [
 ];
 
 // Entry point.
-async function generateSteamAnnouncements(): Promise<void> {
+export async function steamAnnouncements(
+  _event: any,
+  _context: any,
+  callback: (err?: any, result?: any) => void,
+): Promise<void> {
   console.log('Generating Steam Announcements');
   const secrets = await secretsDecrypter.resolve();
   if (!secrets) {
@@ -57,18 +61,10 @@ async function generateSteamAnnouncements(): Promise<void> {
       await postActions.postAnnouncement(a);
     });
   });
-  await promise;
-}
 
-export function steamAnnouncements(
-  _event: any,
-  context: any,
-  _callback: (err?: any, result?: any) => void,
-): Promise<void> {
-  console.info('Starting steamAnnouncements');
-  return generateSteamAnnouncements()
-    .catch((err: any) => {
-      console.error('Error running function', err);
-      context.fail(err);
-    });
+  await promise.then(() => {
+    callback(null, 'Ok');
+  }).catch(err => {
+    callback(err, null);
+  });
 }
