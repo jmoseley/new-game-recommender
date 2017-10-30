@@ -1,27 +1,21 @@
 import * as _ from 'lodash';
-import * as asyncLib from 'async';
 import * as AWS from 'aws-sdk';
 
 const kms = new AWS.KMS();
 
-const SECRET_ENVS = _.keyBy([
-  'redditClientId',
-  'redditClientToken',
-  'redditUsername',
-  'redditPassword',
-  'steamApiKey',
-]);
+export interface Secrets {
+  REDDIT_CLIENT_ID: string;
+  REDDIT_CLIENT_TOKEN: string;
+  REDDIT_USERNAME: string;
+  REDDIT_PASSWORD: string;
+  STEAM_API_KEY: string;
+}
 
-export async function resolve() {
-  return await new Promise((resolve, reject) => {
-    asyncLib.mapValues(SECRET_ENVS, value => kms.decrypt({
-      CiphertextBlob: value,
-    }, undefined), (err, result) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(result);
-      }
-    });
-  });
+export async function resolve(): Promise<Secrets> {
+  console.log('Resolving secrets.');
+  const secrets = await kms.decrypt({
+    CiphertextBlob: Buffer.from(process.env.SECRETS, 'base64'),
+  }).promise();
+
+  return JSON.parse(secrets.Plaintext.toString());
 }

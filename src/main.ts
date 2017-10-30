@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
+import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
-import * as steam from './lib/steam';
+import SteamClient from './lib/steam';
 import * as postActions from './lib/post_actions';
 
 const MAX_PRICE = 1000; // $10
@@ -23,12 +24,17 @@ const CATEGORIES = [
 export async function steamAnnouncements(
   _event: any,
   _context: any,
-  callback: (err: any, result: any) => void,
+  callback: (err?: any, result?: any) => void,
 ): Promise<void> {
+  console.log('Generating Steam Announcements');
   const secrets = await secretsDecrypter.resolve();
-  console.log(secrets);
+  if (!secrets) {
+    console.log('Unable to decrypt secrets.');
+    return;
+  }
   console.info('Getting announcements');
 
+  const steam = new SteamClient(secrets.STEAM_API_KEY);
   const allAnnouncements = await steam.getAnnouncements();
 
   // Filter announcements.
@@ -55,7 +61,10 @@ export async function steamAnnouncements(
       await postActions.postAnnouncement(a);
     });
   });
-  await promise;
 
-  callback(null, 'Ok');
+  await promise.then(() => {
+    callback(null, 'Ok');
+  }).catch(err => {
+    callback(err, null);
+  });
 }

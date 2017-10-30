@@ -1,0 +1,47 @@
+# serverless.yml
+service:
+  name: GameRecommenderBot
+
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-kms-secrets
+  - serverless-dynamodb-local
+  - serverless-offline-scheduler
+  - serverless-offline
+
+custom:
+  kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  memorySize: 320 # optional, in MB, default is 1024
+  timeout: 15 # optional, in seconds, default is 6
+  region: us-west-2
+  environment:
+    SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:DescribeTable
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-west-2:*:*"
+    - Effect: Allow
+      Action:
+        - KMS:Decrypt
+      Resource: ${self:custom.kmsSecrets.keyArn} 
+
+functions:
+  steamAnnouncements:
+    handler: src/main.steamAnnouncements
+    name: ${self:provider.stage}-SteamAnnouncements
+    description: Check and post relevant steam announcements to Reddit
+    events:
+      - schedule: rate(15 minutes)

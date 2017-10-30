@@ -9,13 +9,9 @@
   "author": "Jeremy Moseley",
   "license": "MIT",
   "scripts": {
-    "start": "npm run build && sam local invoke GameRecommenderBot --event event.json",
+    "start": "sls invoke local -f steamAnnouncements",
     "build": "npm run tslint && webpack",
-    "test": "jest",
-    "build-ts": "tsc --sourcemap",
-    "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "local": "npm run build-ts && RUN_LOCAL=1 node dist/main.js",
-    "deploy-s3": "./scripts/deploy-s3.sh"
+    "test": "jest"
   },
   "jest": {
     "globals": {
@@ -58,6 +54,11 @@
     "@types/request-promise-native": "^1.0.7",
     "@types/uuid": "^3.4.2",
     "jest": "^19.0.2",
+    "serverless-dynamodb-local": "^0.2.26",
+    "serverless-kms-secrets": "^1.0.2",
+    "serverless-offline": "^3.16.0",
+    "serverless-offline-scheduler": "^0.3.3",
+    "serverless-webpack": "^3.1.2",
     "source-map-support": "^0.5.0",
     "ts-jest": "^19.0.8",
     "ts-loader": "^3.0.2",
