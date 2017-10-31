@@ -50,6 +50,7 @@ export async function gameDetails(
       body: JSON.stringify(result),
     });
   } catch (error) {
+    console.error(error);
     context.succeed({
       statusCode: 500,
       body: JSON.stringify(error),
