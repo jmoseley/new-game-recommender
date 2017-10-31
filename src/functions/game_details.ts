@@ -1,13 +1,13 @@
 export interface GameDetails {
-  appId: string;
+  query: string;
 }
 
 export default async function gameDetails(
   steamApiKey: string,
-  appId: string,
+  query: string,
 ): Promise<GameDetails> {
   console.log('Getting game details');
   return {
-    appId,
+    query,
   };
 }

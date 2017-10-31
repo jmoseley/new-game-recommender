@@ -53,6 +53,13 @@ functions:
     description: Get details about a game on Steam.
     events:
       - http:
+          path: gamedetails/search
+          method: get
+          request:
+            parameters:
+              querystrings:
+                q: true
+      - http:
           path: gamedetails/{appId}
           method: get
           request:

@@ -33,17 +33,26 @@ export async function gameDetails(
   context: any,
   callback: CallbackFn,
 ): Promise<void> {
-  console.log('got event', event);
-  const appId = event.pathParameters.appId;
-  console.log('Getting game details for appId:', appId);
-  if (!appId) {
-    callback('Must provide appId');
-    return;
-  }
   try {
     const secrets = await getSecrets();
-    context.succeed(await gameDetailsFunction(secrets.STEAM_API_KEY, 'fake appId'));
+    console.log('got event', event);
+    if (!event.path.includes('/search')) {
+      console.info(`Not implemented`);
+      throw new Error('Not implemented');
+    }
+
+    const query = event.queryStringParameters.q;
+    console.log('Getting game details for query:', query);
+    const result = await gameDetailsFunction(secrets.STEAM_API_KEY, query);
+
+    context.succeed({
+      statusCode: 200,
+      body: JSON.stringify(result),
+    });
   } catch (error) {
-    callback(error);
+    context.succeed({
+      statusCode: 500,
+      body: JSON.stringify(error),
+    });
   }
 }
