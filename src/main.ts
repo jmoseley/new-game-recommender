@@ -5,7 +5,7 @@ import 'source-map-support/register';
 import * as secretsDecrypter from './lib/secrets';
 import PostActions from './lib/post_actions';
 import steamAnnouncementsFunction from './functions/steam_announcements';
-// import receiveMessagesFunction from './functions/receive_messages';
+import handleMessages from './functions/handle_messages';
 
 type CallbackFn = (err?: any, result?: any) => void;
 
@@ -22,47 +22,47 @@ async function getSecrets(): Promise<secretsDecrypter.Secrets> {
   return secrets;
 }
 
-export async function steamAnnouncements(
+export function steamAnnouncements(
   _event: any,
   _context: any,
   callback: CallbackFn,
-): Promise<void> {
-  const secrets = await getSecrets();
-  const postActions = new PostActions(
-    dynamoDB,
-    secrets.REDDIT_USERNAME,
-    secrets.REDDIT_PASSWORD,
-    secrets.REDDIT_CLIENT_ID,
-    secrets.REDDIT_CLIENT_TOKEN,
-  );
-  await steamAnnouncementsFunction(secrets.STEAM_API_KEY, postActions).then(() => {
+): void {
+  getSecrets().then(async secrets => {
+    const postActions = new PostActions(
+      dynamoDB,
+      secrets.REDDIT_USERNAME,
+      secrets.REDDIT_PASSWORD,
+      secrets.REDDIT_CLIENT_ID,
+      secrets.REDDIT_CLIENT_TOKEN,
+    );
+    await steamAnnouncementsFunction(secrets.STEAM_API_KEY, postActions);
+  }).then(() => {
     callback(null, 'Ok');
-  }).catch(err => {
-    callback(err, null);
+  }).catch((error: any) => {
+    callback(error, null);
   });
 }
 
-export async function receiveMessages(
+export function receiveMessages(
   event: any,
   context: any,
   callback: CallbackFn,
-): Promise<void> {
-  try {
-    const secrets = await getSecrets();
+): void {
+  getSecrets().then(async (secrets) => {
     console.log('got event', event);
 
     const message = _.get(event.queryStringParameters, 'message');
-    console.log('Received message:', message);
-    // const result = await receiveMessagesFunction(message);
+    const result = await handleMessages(message);
 
     context.succeed({
       statusCode: 200,
+      body: JSON.stringify(result),
     });
-  } catch (error) {
+  }).catch((error: any) => {
     console.error(error);
     context.succeed({
       statusCode: 500,
       body: JSON.stringify(error),
     });
-  }
+  });
 }
