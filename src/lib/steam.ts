@@ -35,6 +35,7 @@ export interface AppInfo {
   priceCents: number;
   name: string;
   activePlayers: number;
+  link?: string;
 }
 
 interface RssResult {
@@ -108,7 +109,7 @@ export default class SteamClient {
     }).compact().value());
   }
 
-  private async getAppInfo(id: string): Promise<AppInfo> {
+  async getAppInfo(id: string): Promise<AppInfo> {
     if (!id) {
       return null;
     }
@@ -123,6 +124,7 @@ export default class SteamClient {
       categories: _.map(result.categories, 'description'),
       priceCents: result.price.final,
       activePlayers,
+      link: `http://store.steampowered.com/app/${id}`,
     };
   }
 }

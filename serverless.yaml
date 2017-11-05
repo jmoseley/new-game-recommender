@@ -13,6 +13,8 @@ plugins:
 
 custom:
   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
+  serverless-offline:
+    port: 4000
 
 provider:
   name: aws
@@ -20,6 +22,8 @@ provider:
   memorySize: 320 # optional, in MB, default is 1024
   timeout: 15 # optional, in seconds, default is 6
   region: us-west-2
+  apiKeys:
+    - ${self:custom.kmsSecrets.secrets.MESSAGE_API_KEY}
   environment:
     SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
   iamRoleStatements:
@@ -45,11 +49,16 @@ functions:
     description: Check and post relevant steam announcements to Reddit
     events:
       - schedule: rate(15 minutes)
-  gameDetails:
-    handler: src/main.gameDetails
-    name: ${self:provider.stage}-GameDetails
-    description: Get details about a game on Steam.
+  receiveMessages:
+    handler: src/main.receiveMessages
+    name: ${self:provider.stage}-ReceiveMessage
+    description: Receive message from the Discord Channel.
     events:
       - http:
-        path: game_details
-        method: post
+          private: true
+          path: message/new
+          method: get
+          request:
+            parameters:
+              querystrings:
+                message: true

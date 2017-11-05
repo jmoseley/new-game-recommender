@@ -1,7 +1,9 @@
 import * as _ from 'lodash';
 import * as AWS from 'aws-sdk';
 
-const kms = new AWS.KMS();
+const kms = new AWS.KMS({
+  region: 'us-west-2',
+});
 
 export interface Secrets {
   REDDIT_CLIENT_ID: string;
