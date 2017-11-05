@@ -1,8 +1,9 @@
+import * as _ from 'lodash';
 import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
 import steamAnnouncementsFunction from './functions/steam_announcements';
-import gameDetailsFunction from './functions/game_details';
+// import receiveMessagesFunction from './functions/receive_messages';
 
 type CallbackFn = (err?: any, result?: any) => void;
 
@@ -28,7 +29,7 @@ export async function steamAnnouncements(
   });
 }
 
-export async function gameDetails(
+export async function receiveMessages(
   event: any,
   context: any,
   callback: CallbackFn,
@@ -36,18 +37,13 @@ export async function gameDetails(
   try {
     const secrets = await getSecrets();
     console.log('got event', event);
-    if (!event.path.includes('/search')) {
-      console.info(`Not implemented`);
-      throw new Error('Not implemented');
-    }
 
-    const query = event.queryStringParameters.q;
-    console.log('Getting game details for query:', query);
-    const result = await gameDetailsFunction(secrets.STEAM_API_KEY, query);
+    const message = _.get(event.queryStringParameters, 'message');
+    console.log('Received message:', message);
+    // const result = await receiveMessagesFunction(message);
 
     context.succeed({
       statusCode: 200,
-      body: JSON.stringify(result),
     });
   } catch (error) {
     console.error(error);
