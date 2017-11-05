@@ -1,7 +1,11 @@
+import * as _ from 'lodash';
 import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
 import steamAnnouncementsFunction from './functions/steam_announcements';
+// import receiveMessagesFunction from './functions/receive_messages';
+
+type CallbackFn = (err?: any, result?: any) => void;
 
 async function getSecrets(): Promise<secretsDecrypter.Secrets> {
   const secrets = await secretsDecrypter.resolve();
@@ -23,4 +27,29 @@ export async function steamAnnouncements(
   }).catch(err => {
     callback(err, null);
   });
+}
+
+export async function receiveMessages(
+  event: any,
+  context: any,
+  callback: CallbackFn,
+): Promise<void> {
+  try {
+    const secrets = await getSecrets();
+    console.log('got event', event);
+
+    const message = _.get(event.queryStringParameters, 'message');
+    console.log('Received message:', message);
+    // const result = await receiveMessagesFunction(message);
+
+    context.succeed({
+      statusCode: 200,
+    });
+  } catch (error) {
+    console.error(error);
+    context.succeed({
+      statusCode: 500,
+      body: JSON.stringify(error),
+    });
+  }
 }
