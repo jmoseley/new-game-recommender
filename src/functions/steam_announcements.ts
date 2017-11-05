@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 
 import SteamClient from '../lib/steam';
-import * as postActions from '../lib/post_actions';
+import PostActions from '../lib/post_actions';
 
 const MAX_PRICE = 1000; // $10
 
@@ -21,6 +21,7 @@ const CATEGORIES = [
 // Entry point.
 export default async function steamAnnouncements(
   steamApiKey: string,
+  postActions: PostActions,
 ): Promise<void> {
   console.log('Generating Steam Announcements');
   console.info('Getting announcements');

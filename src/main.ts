@@ -1,11 +1,17 @@
 import * as _ from 'lodash';
+import * as AWS from 'aws-sdk';
 import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
+import PostActions from './lib/post_actions';
 import steamAnnouncementsFunction from './functions/steam_announcements';
 // import receiveMessagesFunction from './functions/receive_messages';
 
 type CallbackFn = (err?: any, result?: any) => void;
+
+const dynamoDB = new AWS.DynamoDB({
+  region: 'us-west-2',
+});
 
 async function getSecrets(): Promise<secretsDecrypter.Secrets> {
   const secrets = await secretsDecrypter.resolve();
@@ -22,7 +28,14 @@ export async function steamAnnouncements(
   callback: CallbackFn,
 ): Promise<void> {
   const secrets = await getSecrets();
-  await steamAnnouncementsFunction(secrets.STEAM_API_KEY).then(() => {
+  const postActions = new PostActions(
+    dynamoDB,
+    secrets.REDDIT_USERNAME,
+    secrets.REDDIT_PASSWORD,
+    secrets.REDDIT_CLIENT_ID,
+    secrets.REDDIT_CLIENT_TOKEN,
+  );
+  await steamAnnouncementsFunction(secrets.STEAM_API_KEY, postActions).then(() => {
     callback(null, 'Ok');
   }).catch(err => {
     callback(err, null);
