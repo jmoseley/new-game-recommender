@@ -1,8 +1,9 @@
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import * as request from 'request-promise-native';
-import * as SteamApi from 'steam-api';
 import * as xmljson from 'xmljson';
+
+import SteamDetails, { AppInfo } from './steam_details';
 
 // Get the RSS feed as JSON.
 // http://store.steampowered.com/feeds/news.xml
@@ -28,16 +29,6 @@ export interface Announcement {
   appLink: string;
 }
 
-export interface AppInfo {
-  id: string;
-  categories: string[];
-  genres: string[];
-  priceCents: number;
-  name: string;
-  activePlayers: number;
-  link?: string;
-}
-
 interface RssResult {
   item: {
     title: string;
@@ -53,14 +44,9 @@ interface RssResult {
   }[];
 }
 
-export default class SteamClient {
-  appApi: SteamApi.App;
-  userStatsApi: SteamApi.UserStats;
+export default class SteamAnnouncements {
 
-  constructor(steamApiKey: string) {
-    this.appApi = new SteamApi.App(steamApiKey);
-    this.userStatsApi = new SteamApi.UserStats(steamApiKey);
-  }
+  constructor(private readonly steamDetailsClient: SteamDetails) {}
 
   async getAnnouncements(oldestResult: Date = null): Promise<Announcement[]> {
     const xmlResult = await request.get(STEAM_ANNOUNCEMENTS_URL);
@@ -92,9 +78,9 @@ export default class SteamClient {
       if (appIds.length > 1) {
         console.info(`Found more than 1 app for announcement ${item.link}, ${appIds}`);
       }
-      const appId = _.head(appIds);
+      const appId = parseInt(_.head(appIds));
 
-      const app = await this.getAppInfo(appId);
+      const app = await this.steamDetailsClient.getAppInfo(appId);
 
       return {
         link: item.link,
@@ -107,24 +93,5 @@ export default class SteamClient {
         type,
       };
     }).compact().value());
-  }
-
-  async getAppInfo(id: string): Promise<AppInfo> {
-    if (!id) {
-      return null;
-    }
-
-    const result = await this.appApi.appDetails(id);
-    const activePlayers = await this.userStatsApi.GetNumberOfCurrentPlayers(id);
-
-    return {
-      id,
-      name: result.name,
-      genres: _.map(result.genres, 'description'),
-      categories: _.map(result.categories, 'description'),
-      priceCents: result.price.final,
-      activePlayers,
-      link: `http://store.steampowered.com/app/${id}`,
-    };
   }
 }
