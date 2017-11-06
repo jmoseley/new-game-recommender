@@ -21,7 +21,7 @@ serverless encrypt -n SECRETS:REDDIT_CLIENT_TOKEN -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:REDDIT_USERNAME -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:REDDIT_PASSWORD -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:STEAM_API_KEY -v <value> -k <aws KMS key id>
-serverless encrypt -n MESSAGE_API_KEY -v <value> -k <aws KMS key id>
+serverless encrypt -n SECRETS:DISCORD_BOT_TOKEN -v <value> -k <aws KMS key id>
 ```
 
 ## Run Locally
