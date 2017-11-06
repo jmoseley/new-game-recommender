@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as AWS from 'aws-sdk';
 import Decimal from 'decimal.js';
 
-import { Announcement } from './steam';
+import { Announcement } from './steam_announcements';
 import RawClient from './clients/raw';
 
 const STEAM_ANNOUNCEMENTS_TABLE = 'GRB.PostedSteamAnnouncements';
