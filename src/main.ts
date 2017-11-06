@@ -48,21 +48,22 @@ export function receiveMessages(
   context: any,
   callback: CallbackFn,
 ): void {
+  console.info(JSON.stringify(event, null, 2));
   getSecrets().then(async (secrets) => {
-    console.log('got event', event);
-
     const message = _.get(event.queryStringParameters, 'message');
-    const result = await handleMessages(message);
+    const channelId = _.get(event.queryStringParameters, 'channelId');
+    const isMentioned = _.get(event.queryStringParameters, 'isMentioned') === 'true' ? true : false;
+    const result = await handleMessages(secrets.DISCORD_BOT_TOKEN, isMentioned, message, channelId);
 
     context.succeed({
       statusCode: 200,
-      body: JSON.stringify(result),
+      body: result,
     });
   }).catch((error: any) => {
     console.error(error);
     context.succeed({
       statusCode: 500,
-      body: JSON.stringify(error),
+      body: error,
     });
   });
 }

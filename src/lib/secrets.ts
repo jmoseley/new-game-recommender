@@ -11,6 +11,7 @@ export interface Secrets {
   REDDIT_USERNAME: string;
   REDDIT_PASSWORD: string;
   STEAM_API_KEY: string;
+  DISCORD_BOT_TOKEN: string;
 }
 
 export async function resolve(): Promise<Secrets> {
