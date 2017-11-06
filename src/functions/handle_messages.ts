@@ -45,25 +45,42 @@ export default async function handleMessages(
 
   // Send response.
   const client = new Discord.Client();
-  client.on('ready', () => {
-    console.info('Client has logged in.');
-    if (authorId === client.user.id) {
-      console.info(`Not responding to message sent by this user.`);
-      return;
-    }
+  const sendPromise = new Promise((resolve, reject) => {
+    let isComplete = false;
+    setTimeout(() => {
+      if (!isComplete) {
+        isComplete = true;
+        reject(`Timeout waiting for client to be ready.`);
+      }
+    }, 20000);
 
-    const channel = client.channels.get(channelId);
-    if (channel.type !== 'text') {
-      console.error('Cannot send messages to a non-text channel.');
-      return;
-    }
+    client.on('ready', () => {
+      console.info('Client has logged in.');
+      if (authorId === client.user.id) {
+        console.info(`Not responding to message sent by this user.`);
+        return;
+      }
 
-    const textChannel = channel as Discord.TextChannel;
-    textChannel.send(response).catch((error: any) => {
-      console.error('Error sending message', error);
+      const channel = client.channels.get(channelId);
+      if (channel.type !== 'text') {
+        console.error('Cannot send messages to a non-text channel.');
+        return;
+      }
+
+      const textChannel = channel as Discord.TextChannel;
+      textChannel.send(response).then(() => {
+        isComplete = true;
+        resolve();
+      }).catch((error: any) => {
+        console.error('Error sending message', error);
+      });
     });
   });
+
+  // Woah dead lock risk batman. If you don't do login, the resolve function
+  // above will never finish.
   await client.login(discordBotToken);
+  await sendPromise;
 
   return 'Ok';
 }
@@ -110,6 +127,7 @@ async function getResponse(steamStore: SteamStore, message: string): Promise<str
     const response = `Here's what I found for '${gameTitle}' from Steam:`;
     return _.reduce(results, (response, result) => {
       return `${response}\n\n${result.name}:\n` +
+        `Price: $${result.priceCents / 100}\n` +
         `Categories: ${_.join(result.categories, ', ')}\n` +
         `Active Players on Steam: ${result.activePlayers}\n` +
         `${result.link}`;
