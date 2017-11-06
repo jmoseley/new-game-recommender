@@ -24,10 +24,17 @@ serverless encrypt -n SECRETS:STEAM_API_KEY -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:DISCORD_BOT_TOKEN -v <value> -k <aws KMS key id>
 ```
 
-## Run Locally
+## Run Announcements Posting Locally
 
 ```
 sls invoke local -f steamAnnouncements
+```
+
+## Run Discord Bot Locally
+
+```
+sls offline
+curl localhost:4000/messages/new?message=hello
 ```
 
 ## Deploy
