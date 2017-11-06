@@ -5,8 +5,7 @@ const DISCORD_MENTION = '<@374726511061630986>';
 
 const DISCORD_MENTION_REGEX = /<@\d+>/;
 
-// TODO: Let's do some nlp on this.
-const TELL_ME_ABOUT_REGEX = /Tell me about (.+)/;
+const TELL_ME_ABOUT_REGEX = /.*Tell me about (.+)\.?/i;
 
 const HELP_REGEXES = [
   /.*what can you do\??.*/i,
@@ -16,6 +15,7 @@ const HELP_REGEXES = [
 export default async function handleMessages(
   discordBotToken: string,
   isMentioned: boolean,
+  authorId: string,
   message: string,
   channelId: string,
 ) {
@@ -38,8 +38,12 @@ export default async function handleMessages(
   const client = new Discord.Client();
   client.on('ready', () => {
     console.info('Client has logged in.');
-    const channel = client.channels.get(channelId);
+    if (authorId === client.user.id) {
+      console.info(`Not responding to message sent by this user.`);
+      return;
+    }
 
+    const channel = client.channels.get(channelId);
     if (channel.type !== 'text') {
       console.error('Cannot send messages to a non-text channel.');
       return;
@@ -82,11 +86,19 @@ const SUGESSTED_GAMES = [
   'RimWorld',
 ];
 
+// TODO: Get some NLP up in here.
 function getResponse(message: string): string | null {
   if (_.some(HELP_REGEXES, pattern => pattern.test(message))) {
     return `I can tell you about games. Try '@GameRecommendingBot Tell me about ${_.sample(SUGESSTED_GAMES)}.`;
   }
 
+  if (TELL_ME_ABOUT_REGEX.test(message)) {
+    const match = TELL_ME_ABOUT_REGEX.exec(message);
+    console.info(match);
+    const gameTitle = match[1];
+    console.info(`Looing up info for '${gameTitle}'`);
+    return `Looking up details for ${gameTitle}`;
+  }
   return null;
 }
 
