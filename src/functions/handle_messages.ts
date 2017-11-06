@@ -124,6 +124,11 @@ async function getResponse(steamStore: SteamStore, message: string): Promise<str
     const gameTitle = match[1];
 
     const results = await steamStore.search(gameTitle);
+    console.info(results);
+    if (!results.length) {
+      return `No results found for ${gameTitle}.`;
+    }
+
     const response = `Here's what I found for '${gameTitle}' from Steam:`;
     return _.reduce(results, (response, result) => {
       return `${response}\n\n${result.name}:\n` +
