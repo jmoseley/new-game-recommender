@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import * as Discord from 'discord.js';
 
+import SteamStore from '../lib/steam_store';
+
 const DISCORD_MENTION = '<@374726511061630986>';
 
 const DISCORD_MENTION_REGEX = /<@\d+>/;
@@ -13,6 +15,7 @@ const HELP_REGEXES = [
 ];
 
 export default async function handleMessages(
+  steamStore: SteamStore,
   discordBotToken: string,
   isMentioned: boolean,
   authorId: string,
@@ -29,7 +32,13 @@ export default async function handleMessages(
   message = message.replace(DISCORD_MENTION_REGEX, '').trim();
   console.info(`Handling message: '${message}'`);
 
-  let response = getResponse(message);
+  let response: string;
+  try {
+    response = await getResponse(steamStore, message);
+  } catch (error) {
+    console.error(error);
+    response = 'Whoops, there was an error.';
+  }
   if (!response) {
     response = `I didn't understand that. Try 'help'`;
   }
@@ -87,17 +96,24 @@ const SUGESSTED_GAMES = [
 ];
 
 // TODO: Get some NLP up in here.
-function getResponse(message: string): string | null {
+// Get data from more than just steam.
+async function getResponse(steamStore: SteamStore, message: string): Promise<string | null> {
   if (_.some(HELP_REGEXES, pattern => pattern.test(message))) {
     return `I can tell you about games. Try '@GameRecommendingBot Tell me about ${_.sample(SUGESSTED_GAMES)}.`;
   }
 
   if (TELL_ME_ABOUT_REGEX.test(message)) {
     const match = TELL_ME_ABOUT_REGEX.exec(message);
-    console.info(match);
     const gameTitle = match[1];
-    console.info(`Looing up info for '${gameTitle}'`);
-    return `Looking up details for ${gameTitle}`;
+
+    const results = await steamStore.search(gameTitle);
+    const response = `Here's what I found for '${gameTitle}' from Steam:`;
+    return _.reduce(results, (response, result) => {
+      return `${response}\n\n${result.name}:\n` +
+        `Categories: ${_.join(result.categories, ', ')}\n` +
+        `Active Players on Steam: ${result.activePlayers}\n` +
+        `${result.link}`;
+    }, response);
   }
   return null;
 }

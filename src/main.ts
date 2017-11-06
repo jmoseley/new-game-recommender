@@ -3,6 +3,8 @@ import * as AWS from 'aws-sdk';
 import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
+import SteamStore from './lib/steam_store';
+import SteamDetails from './lib/steam_details';
 import PostActions from './lib/post_actions';
 import steamAnnouncementsFunction from './functions/steam_announcements';
 import handleMessages from './functions/handle_messages';
@@ -35,7 +37,8 @@ export function steamAnnouncements(
       secrets.REDDIT_CLIENT_ID,
       secrets.REDDIT_CLIENT_TOKEN,
     );
-    await steamAnnouncementsFunction(secrets.STEAM_API_KEY, postActions);
+    const steamDetailsClient = new SteamDetails(secrets.STEAM_API_KEY);
+    await steamAnnouncementsFunction(steamDetailsClient, postActions);
   }).then(() => {
     callback(null, 'Ok');
   }).catch((error: any) => {
@@ -54,7 +57,11 @@ export function receiveMessages(
     const channelId = _.get(event.queryStringParameters, 'channelId');
     const isMentioned = _.get(event.queryStringParameters, 'isMentioned') === 'true' ? true : false;
     const authorId = _.get(event.queryStringParameters, 'authorId');
-    const result = await handleMessages(secrets.DISCORD_BOT_TOKEN, isMentioned, authorId, message, channelId);
+
+    const steamDetailsClient = new SteamDetails(secrets.STEAM_API_KEY);
+    const steamStore = new SteamStore(steamDetailsClient);
+
+    const result = await handleMessages(steamStore, secrets.DISCORD_BOT_TOKEN, isMentioned, authorId, message, channelId);
 
     context.succeed({
       statusCode: 200,
