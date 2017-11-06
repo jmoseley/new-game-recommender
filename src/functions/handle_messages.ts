@@ -99,7 +99,6 @@ const SUGESSTED_GAMES = [
   'South Park: The Fractured But Whole',
   'Middle-earth: Shadow of War',
   'Counter-Strike: Global Offensive',
-  'Steam Controller and Link',
   'Spintires: MudRunner',
   'Black Desert Online',
   'Grand Theft Auto V',
@@ -116,7 +115,7 @@ const SUGESSTED_GAMES = [
 // Get data from more than just steam.
 async function getResponse(steamStore: SteamStore, message: string): Promise<string | null> {
   if (_.some(HELP_REGEXES, pattern => pattern.test(message))) {
-    return `I can tell you about games. Try '@GameRecommendingBot Tell me about ${_.sample(SUGESSTED_GAMES)}.`;
+    return `I can tell you about games. Try '@GameRecommendingBot Tell me about ${_.sample(SUGESSTED_GAMES)}'.`;
   }
 
   if (TELL_ME_ABOUT_REGEX.test(message)) {
