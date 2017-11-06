@@ -53,7 +53,8 @@ export function receiveMessages(
     const message = _.get(event.queryStringParameters, 'message');
     const channelId = _.get(event.queryStringParameters, 'channelId');
     const isMentioned = _.get(event.queryStringParameters, 'isMentioned') === 'true' ? true : false;
-    const result = await handleMessages(secrets.DISCORD_BOT_TOKEN, isMentioned, message, channelId);
+    const authorId = _.get(event.queryStringParameters, 'authorId');
+    const result = await handleMessages(secrets.DISCORD_BOT_TOKEN, isMentioned, authorId, message, channelId);
 
     context.succeed({
       statusCode: 200,
