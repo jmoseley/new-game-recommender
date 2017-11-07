@@ -65,13 +65,13 @@ export function receiveMessages(
 
     context.succeed({
       statusCode: 200,
-      body: result,
+      body: JSON.stringify({ message: result }),
     });
   }).catch((error: any) => {
     console.error(error);
     context.succeed({
       statusCode: 500,
-      body: error,
+      body: error.message,
     });
   });
 }
