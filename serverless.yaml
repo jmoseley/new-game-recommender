@@ -15,6 +15,12 @@ custom:
   kmsSecrets: ${file(kms-secrets.${opt:stage, self:provider.stage}.${opt:region, self:provider.region}.yml)}
   serverless-offline:
     port: 4000
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      noStart: true
 
 provider:
   name: aws
@@ -26,6 +32,7 @@ provider:
     - discordRelayApiKey
   environment:
     SECRETS: ${self:custom.kmsSecrets.secrets.SECRETS}
+    STAGE: ${opt:stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -40,7 +47,23 @@ provider:
     - Effect: Allow
       Action:
         - KMS:Decrypt
-      Resource: ${self:custom.kmsSecrets.keyArn} 
+      Resource: ${self:custom.kmsSecrets.keyArn}
+
+resources:
+  Resources:
+    PostedSteamAnnouncements:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: GRB.PostedSteamAnnouncements
+        AttributeDefinitions:
+          - AttributeName: PostId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PostId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 
 functions:
   steamAnnouncements:

@@ -26,8 +26,15 @@ serverless encrypt -n SECRETS:STEAM_API_KEY -v <value> -k <aws KMS key id>
 
 ## Run Announcements Posting Locally
 
+First, download and start DynamoDB locally:
+
+http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html#DynamoDBLocal.DownloadingAndRunning
+
+Start DynamodDB: `java -Djava.library.path=./dynamodb_local_latest/DynamoDBLocal_lib -jar ./dynamodb_local_latest/DynamoDBLocal.jar -inMemory`
+
 ```
-sls invoke local -f steamAnnouncements
+sls dynamodb start --migrate
+sls invoke local -f steamAnnouncements -s dev
 ```
 
 ## Run Discord Bot Locally
