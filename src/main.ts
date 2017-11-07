@@ -11,8 +11,13 @@ import handleMessages from './functions/handle_messages';
 
 type CallbackFn = (err?: any, result?: any) => void;
 
+let dynamoDbEndpoint: string;
+if (process.env.STAGE === 'dev') {
+  dynamoDbEndpoint = 'http://localhost:8000';
+}
 const dynamoDB = new AWS.DynamoDB({
   region: 'us-west-2',
+  endpoint: dynamoDbEndpoint,
 });
 
 async function getSecrets(): Promise<secretsDecrypter.Secrets> {
@@ -41,8 +46,10 @@ export function steamAnnouncements(
     await steamAnnouncementsFunction(steamDetailsClient, postActions);
   }).then(() => {
     callback(null, 'Ok');
+    process.exit(0);
   }).catch((error: any) => {
     callback(error, null);
+    process.exit(1);
   });
 }
 
@@ -67,11 +74,13 @@ export function receiveMessages(
       statusCode: 200,
       body: JSON.stringify({ message: result }),
     });
+    process.exit(0);
   }).catch((error: any) => {
     console.error(error);
     context.succeed({
       statusCode: 500,
       body: error.message,
     });
+    process.exit(1);
   });
 }
