@@ -43,46 +43,7 @@ export default async function handleMessages(
     response = `I didn't understand that. Try 'help'`;
   }
 
-  // Send response.
-  const client = new Discord.Client();
-  const sendPromise = new Promise((resolve, reject) => {
-    let isComplete = false;
-    setTimeout(() => {
-      if (!isComplete) {
-        isComplete = true;
-        reject(`Timeout waiting for client to be ready.`);
-      }
-    }, 20000);
-
-    client.on('ready', () => {
-      console.info('Client has logged in.');
-      if (authorId === client.user.id) {
-        console.info(`Not responding to message sent by this user.`);
-        return;
-      }
-
-      const channel = client.channels.get(channelId);
-      if (channel.type !== 'text') {
-        console.error('Cannot send messages to a non-text channel.');
-        return;
-      }
-
-      const textChannel = channel as Discord.TextChannel;
-      textChannel.send(response).then(() => {
-        isComplete = true;
-        resolve();
-      }).catch((error: any) => {
-        console.error('Error sending message', error);
-      });
-    });
-  });
-
-  // Woah dead lock risk batman. If you don't do login, the resolve function
-  // above will never finish.
-  await client.login(discordBotToken);
-  await sendPromise;
-
-  return 'Ok';
+  return response;
 }
 
 const SUGESSTED_GAMES = [
