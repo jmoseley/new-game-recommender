@@ -1,5 +1,6 @@
 # new-game-recommender
 Looks at announcements from Steam, and makes Reddit posts about relevant upcoming deals and free weekends.
+Also handles incoming messages from discord, and responsds.
 
 Designed to be run inside AWS Lambda on a schedule, and generates posts to the specified subreddit based on keyword matches.
 
@@ -21,7 +22,6 @@ serverless encrypt -n SECRETS:REDDIT_CLIENT_TOKEN -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:REDDIT_USERNAME -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:REDDIT_PASSWORD -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:STEAM_API_KEY -v <value> -k <aws KMS key id>
-serverless encrypt -n SECRETS:DISCORD_BOT_TOKEN -v <value> -k <aws KMS key id>
 ```
 
 ## Run Locally
