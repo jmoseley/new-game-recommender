@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import * as Discord from 'discord.js';
 
 import SteamStore from '../lib/steam_store';
 
