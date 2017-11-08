@@ -3,6 +3,7 @@ import * as AWS from 'aws-sdk';
 import 'source-map-support/register';
 
 import * as secretsDecrypter from './lib/secrets';
+import * as config from './lib/config';
 import SteamStore from './lib/steam_store';
 import SteamDetails from './lib/steam_details';
 import PostActions from './lib/post_actions';
@@ -11,14 +12,9 @@ import handleMessages from './functions/handle_messages';
 
 type CallbackFn = (err?: any, result?: any) => void;
 
-let dynamoDbEndpoint: string;
-if (process.env.STAGE === 'dev') {
-  dynamoDbEndpoint = 'http://localhost:8000';
+if (config.isLocalDev()) {
+  console.info(`-------- Local Development ---------`);
 }
-const dynamoDB = new AWS.DynamoDB({
-  region: 'us-west-2',
-  endpoint: dynamoDbEndpoint,
-});
 
 async function getSecrets(): Promise<secretsDecrypter.Secrets> {
   const secrets = await secretsDecrypter.resolve();
@@ -35,6 +31,7 @@ export function steamAnnouncements(
   callback: CallbackFn,
 ): void {
   getSecrets().then(async secrets => {
+    const dynamoDB = getDynamoDB();
     const postActions = new PostActions(
       dynamoDB,
       secrets.REDDIT_USERNAME,
@@ -68,7 +65,7 @@ export function receiveMessages(
     const steamDetailsClient = new SteamDetails(secrets.STEAM_API_KEY);
     const steamStore = new SteamStore(steamDetailsClient);
 
-    const result = await handleMessages(steamStore, secrets.DISCORD_BOT_TOKEN, isMentioned, authorId, message, channelId);
+    const result = await handleMessages(steamStore, isMentioned, authorId, message, channelId);
 
     context.succeed({
       statusCode: 200,
@@ -82,5 +79,16 @@ export function receiveMessages(
       body: error.message,
     });
     process.exit(1);
+  });
+}
+
+function getDynamoDB(): AWS.DynamoDB {
+  let dynamoDbEndpoint: string;
+  if (config.isLocalDev()) {
+    dynamoDbEndpoint = 'http://localhost:8000';
+  }
+  return new AWS.DynamoDB({
+    region: 'us-west-2',
+    endpoint: dynamoDbEndpoint,
   });
 }
