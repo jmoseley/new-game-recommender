@@ -28,8 +28,16 @@ REDDIT_CLIENT_ID=<value> REDDIT_CLIENT_TOKEN=<value> REDDIT_USERNAME=<value> RED
 ```
 STEAM_API_KEY=<value> DEV=1 sls offline
 # In another terminal, call the API.
-curl -H 'x-api-key: <value from output of "sls offline"' localhost:4000/messages/new?message=hello
+curl -H 'x-api-key: <value from output of "sls offline">' localhost:4000/messages/new?message=hello
 ```
+
+### Combining Discord Relay and Bot for end-to-end Development
+
+Bring up a local instance of [Discord Relay](https://github.com/jmoseley/discord-relay).
+If you use `sls dynamodb start` from above, you can skip the "Install Local DynamoDB" step.
+
+Add a webhook using your bot token and a webhook url `http://localhost:4000/messages/new`
+including the `x-api-key` header value that is printed when you run `sls offline` above.
 
 ## Configure secrets
 
