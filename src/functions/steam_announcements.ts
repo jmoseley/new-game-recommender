@@ -24,8 +24,7 @@ export default async function steamAnnouncements(
   steamDetailsClient: SteamDetails,
   postActions: PostActions,
 ): Promise<void> {
-  console.log('Generating Steam Announcements');
-  console.info('Getting announcements');
+  console.info('Generating Steam Announcements');
 
   const steam = new SteamClient(steamDetailsClient);
   const allAnnouncements = await steam.getAnnouncements();

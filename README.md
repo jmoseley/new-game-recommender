@@ -14,7 +14,34 @@ Designed to be run inside AWS Lambda on a schedule, and generates posts to the s
 1. Install AWS CLI tools: `pip install aws-cli`
 1. Configure AWS credentials: `aws configure`
 
+## Steam Announcements, Running Locally
+
+```
+sls dynamodb install
+sls dynamodb start
+# In another terminal, invoke the function
+REDDIT_CLIENT_ID=<value> REDDIT_CLIENT_TOKEN=<value> REDDIT_USERNAME=<value> REDDIT_PASSWORD=<value> STEAM_API_KEY=<value> DEV=1 sls invoke local -f steamAnnouncements
+```
+
+## Run Discord Bot Locally
+
+```
+STEAM_API_KEY=<value> DEV=1 sls offline
+# In another terminal, call the API.
+curl -H 'x-api-key: <value from output of "sls offline">' localhost:4000/messages/new?message=hello
+```
+
+### Combining Discord Relay and Bot for end-to-end Development
+
+Bring up a local instance of [Discord Relay](https://github.com/jmoseley/discord-relay).
+If you use `sls dynamodb start` from above, you can skip the "Install Local DynamoDB" step.
+
+Add a webhook using your bot token and a webhook url `http://localhost:4000/messages/new`
+including the `x-api-key` header value that is printed when you run `sls offline` above.
+
 ## Configure secrets
+
+This is required before deployment.
 
 ```
 serverless encrypt -n SECRETS:REDDIT_CLIENT_ID -v <value> -k <aws KMS key id>
@@ -24,18 +51,11 @@ serverless encrypt -n SECRETS:REDDIT_PASSWORD -v <value> -k <aws KMS key id>
 serverless encrypt -n SECRETS:STEAM_API_KEY -v <value> -k <aws KMS key id>
 ```
 
-## Run Announcements Posting Locally
+If you want to use these encrypted secrets for local development you can include
+`USE_SECRETS=1` as a command line parameter instead of specifying the secrets as
+ENV vars.
 
-```
-sls invoke local -f steamAnnouncements
-```
-
-## Run Discord Bot Locally
-
-```
-sls offline
-curl localhost:4000/messages/new?message=hello
-```
+Example: `DEV=1 USE_SECRETS=1 sls invoke local -f steamAnnouncements`
 
 ## Deploy
 
@@ -54,3 +74,13 @@ sls deploy function -f <function name>
 ```
 npm run test
 ```
+
+## Appendices
+
+### Getting a Steam API Key
+
+https://steamcommunity.com/dev/apikey
+
+### Reddit Third Party Apps
+
+https://www.reddit.com/prefs/apps
