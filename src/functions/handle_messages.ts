@@ -15,7 +15,6 @@ const HELP_REGEXES = [
 
 export default async function handleMessages(
   steamStore: SteamStore,
-  discordBotToken: string,
   isMentioned: boolean,
   authorId: string,
   message: string,

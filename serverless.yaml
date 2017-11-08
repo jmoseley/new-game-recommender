@@ -8,7 +8,6 @@ plugins:
   - serverless-webpack
   - serverless-kms-secrets
   - serverless-dynamodb-local
-  - serverless-offline-scheduler
   - serverless-offline
 
 custom:
@@ -20,7 +19,6 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
-      noStart: true
 
 provider:
   name: aws

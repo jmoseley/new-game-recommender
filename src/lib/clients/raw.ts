@@ -3,7 +3,7 @@ import { promisify } from 'util';
 
 const USER_AGENT = 'node:GameRecommendingBot:v0.0.1 (by /u/GameRecommendingBot)';
 
-const SUBREDDIT = 'SMGB';
+const SUBREDDIT = 'bottesting';
 
 // TODO: Get some types for this.
 const rawjs = require('raw.js');
