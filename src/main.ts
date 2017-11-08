@@ -42,11 +42,9 @@ export function steamAnnouncements(
     const steamDetailsClient = new SteamDetails(secrets.STEAM_API_KEY);
     await steamAnnouncementsFunction(steamDetailsClient, postActions);
   }).then(() => {
-    callback(null, 'Ok');
-    process.exit(0);
+    return callback(null, 'Ok');
   }).catch((error: any) => {
-    callback(error, null);
-    process.exit(1);
+    return callback(error, null);
   });
 }
 
@@ -71,14 +69,12 @@ export function receiveMessages(
       statusCode: 200,
       body: JSON.stringify({ message: result }),
     });
-    process.exit(0);
   }).catch((error: any) => {
     console.error(error);
     context.succeed({
       statusCode: 500,
       body: error.message,
     });
-    process.exit(1);
   });
 }
 
